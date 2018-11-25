@@ -5,8 +5,13 @@ import org.dyn4j.dynamics.World;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DroneWorld {
     private World world;
+    private long startTime;
+    private long lastTime;
 
     public DroneWorld() {
         this.world = new World();
@@ -39,5 +44,38 @@ public class DroneWorld {
         b.translate(0, -5);
         b.setMass(MassType.INFINITE);
         this.world.addBody(b);
+    }
+
+    public void start() {
+        this.lastTime = System.nanoTime();
+        this.startTime = System.nanoTime();
+
+        Thread thread = new Thread() {
+            public void run() {
+                long time =  System.nanoTime();
+                double secondsDelta = (time - lastTime) * 1e9;
+                updateWorld(secondsDelta);
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {}
+            }
+        };
+
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    public void updateWorld(double timeDelta) {
+        this.world.update(timeDelta);
+    }
+
+    public List<String> getState() {
+        long time = System.nanoTime();
+        ArrayList<String> report = new ArrayList<String>();
+
+        double elapsed = (time - this.startTime) * 1e-9;
+        report.add(String.format("Elapsed time: %f seconds", elapsed));
+
+        return report;
     }
 }
