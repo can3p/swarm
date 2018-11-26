@@ -1,17 +1,23 @@
 package org.can3p.swarm.server;
 
+import org.can3p.swarm.server.serializers.GlobalSerializer;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.World;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DroneWorld {
     private World world;
     private long startTime;
     private long lastTime;
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public World getWorld() {
+        return world;
+    }
 
     public DroneWorld() {
         this.world = new World();
@@ -69,13 +75,7 @@ public class DroneWorld {
         this.world.update(timeDelta);
     }
 
-    public List<String> getState() {
-        long time = System.nanoTime();
-        ArrayList<String> report = new ArrayList<String>();
-
-        double elapsed = (time - this.startTime) * 1e-9;
-        report.add(String.format("Elapsed time: %f seconds", elapsed));
-
-        return report;
+    public String getState() {
+        return GlobalSerializer.serialize(this);
     }
 }
